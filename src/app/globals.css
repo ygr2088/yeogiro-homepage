@@ -1,0 +1,53 @@
+@import "tailwindcss";
+
+@theme {
+  --color-primary-50: #fcf7f8;
+  --color-primary-100: #f7edf0;
+  --color-primary-200: #ead8dc;
+  --color-primary-300: #d8a6af;
+  --color-primary-400: #c27b88;
+  --color-primary-500: #a95767;
+  --color-primary-600: #93495a;
+  --color-primary-700: #7e3f4c;
+  --color-primary-800: #66343f;
+  --color-primary-900: #4f2931;
+  --color-primary-950: #2e151b;
+
+  --color-accent-50: #fcfbfa;
+  --color-accent-100: #f7f1ef;
+  --color-accent-200: #eadedb;
+  --color-accent-300: #d8c2bd;
+  --color-accent-400: #bd9a93;
+  --color-accent-500: #9f746d;
+  --color-accent-600: #835d57;
+  --color-accent-700: #684a45;
+  --color-accent-800: #503936;
+  --color-accent-900: #382826;
+
+  --font-sans: "Pretendard Variable", "Pretendard", -apple-system, BlinkMacSystemFont,
+    system-ui, "Apple SD Gothic Neo", "Noto Sans KR", sans-serif;
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply bg-white text-gray-900 antialiased;
+  }
+
+  ::selection {
+    @apply bg-primary-200 text-primary-900;
+  }
+}
+
+@layer utilities {
+  .container-main {
+    @apply mx-auto w-full max-w-7xl px-4 sm:px-6 lg:px-8;
+  }
+
+  .section-padding {
+    @apply py-16 sm:py-20 lg:py-24;
+  }
+}
