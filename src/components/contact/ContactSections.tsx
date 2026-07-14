@@ -154,9 +154,9 @@ export function ContactInfo() {
           <li className="flex items-start gap-3">
             <Icon name="phone" className="mt-0.5 text-accent-500" />
             <div>
-              <p className="text-sm text-gray-500">응급 전화 (24시간)</p>
-              <a href={`tel:${SITE.emergencyPhone}`} className="font-medium text-gray-900 hover:text-primary-600">
-                {SITE.emergencyPhone}
+              <p className="text-sm text-gray-500">대표전화</p>
+              <a href={`tel:${SITE.phone}`} className="font-medium text-gray-900 hover:text-primary-600">
+                {SITE.phone}
               </a>
             </div>
           </li>

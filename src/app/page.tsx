@@ -1,19 +1,24 @@
 import {
   Hero,
-  StatsBar,
   ServicesPreview,
   WhyUs,
+  RecoveryFeature,
+  FacilityPreview,
   CtaBanner,
 } from "@/components/home/HomeSections";
-import { ReviewsPreview, BlogPreview } from "@/components/home/BlogReviews";
+import {
+  ReviewsPreview,
+  BlogPreview,
+} from "@/components/home/BlogReviews";
 
 export default function HomePage() {
   return (
     <>
       <Hero />
-      <StatsBar />
       <ServicesPreview />
       <WhyUs />
+      <RecoveryFeature />
+      <FacilityPreview />
       <ReviewsPreview />
       <BlogPreview />
       <CtaBanner />
