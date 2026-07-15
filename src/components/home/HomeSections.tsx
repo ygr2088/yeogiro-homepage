@@ -4,5 +4,6 @@ export {
   WhyUs,
   RecoveryFeature,
   FacilityPreview,
+  InstagramPreview,
   CtaBanner,
 } from "./index";

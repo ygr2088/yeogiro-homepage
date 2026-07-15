@@ -4,12 +4,10 @@ import {
   WhyUs,
   RecoveryFeature,
   FacilityPreview,
+  InstagramPreview,
   CtaBanner,
 } from "@/components/home/HomeSections";
-import {
-  ReviewsPreview,
-  BlogPreview,
-} from "@/components/home/BlogReviews";
+import { ReviewsPreview, BlogPreview } from "@/components/home/BlogReviews";
 
 export default function HomePage() {
   return (
@@ -21,6 +19,7 @@ export default function HomePage() {
       <FacilityPreview />
       <ReviewsPreview />
       <BlogPreview />
+      <InstagramPreview />
       <CtaBanner />
     </>
   );
