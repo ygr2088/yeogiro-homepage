@@ -35,7 +35,7 @@ const cases = [
     evaluation: "통증 반응, 관절 가동범위, 근육량과 보행 상태를 함께 평가",
     treatments: ["침치료", "레이저", "수중재활", "단계별 운동"],
     progress: "치료 반응과 피로도를 확인하며 재활 강도를 조절합니다.",
-    link: "/rehabilitation",
+    detailHref: "/cases/rehab-walking",
   },
   {
     category: "침치료",
@@ -48,7 +48,7 @@ const cases = [
     evaluation: "통증 부위와 전신상태, 기존 질환 및 복용약을 함께 확인",
     treatments: ["침치료", "레이저", "생활환경 조정", "저강도 운동"],
     progress: "무리하지 않는 범위에서 일상 움직임과 삶의 질을 관리합니다.",
-    link: "/rehabilitation",
+    detailHref: "/cases/acupuncture-pain",
   },
   {
     category: "치과",
@@ -62,7 +62,7 @@ const cases = [
     evaluation: "구강검사와 구강 X-ray를 통해 치근과 치조골 상태를 평가",
     treatments: ["스케일링", "발치 평가", "국소 통증관리", "홈케어"],
     progress: "치료 후 식이와 양치 관리, 정기 구강검진을 이어갑니다.",
-    link: "/dental-center",
+    detailHref: "/cases/dental-periodontal",
   },
   {
     category: "외과",
@@ -75,7 +75,7 @@ const cases = [
     evaluation: "전신상태, 혈액검사, 영상검사와 마취 위험도를 함께 평가",
     treatments: ["개별 마취계획", "수술", "통증관리", "회복 모니터링"],
     progress: "수술 후 상태에 따라 식이, 활동량과 재활 계획을 조정합니다.",
-    link: "/surgery",
+    detailHref: "/cases/surgery-recovery",
   },
   {
     category: "내과",
@@ -88,7 +88,7 @@ const cases = [
     evaluation: "문진, 혈액·소변검사와 영상검사를 통해 원인을 단계적으로 확인",
     treatments: ["수액", "약물", "식이조절", "재검진과 장기관리"],
     progress: "증상과 검사 수치의 변화를 바탕으로 치료 계획을 조정합니다.",
-    link: "/internal-medicine",
+    detailHref: "/cases/internal-chronic",
   },
   {
     category: "보행평가",
@@ -101,7 +101,7 @@ const cases = [
     evaluation: "보행 영상과 분석 데이터를 통해 좌우 균형과 변화를 평가",
     treatments: ["통증관리", "운동재활", "보호자 생활관리 교육"],
     progress: "치료 전후 데이터를 비교해 회복 방향과 강도를 결정합니다.",
-    link: "/ekico",
+    detailHref: "/cases/gait-analysis",
   },
 ];
 
@@ -280,11 +280,11 @@ export default function CasesPage() {
                   </div>
 
                   <Button
-                    href={item.link}
+                    href={item.detailHref}
                     variant="outline"
                     className="mt-6"
                   >
-                    관련 진료센터 보기
+                    치료사례 자세히 보기
                     <Icon name="arrow" />
                   </Button>
                 </div>
