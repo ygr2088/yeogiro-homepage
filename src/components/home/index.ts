@@ -2,6 +2,8 @@ export { Hero } from "./Hero";
 export { ServicesPreview } from "./ServicesPreview";
 export { WhyUs } from "./WhyUs";
 export { RecoveryFeature } from "./RecoveryFeature";
+export { TreatmentTechnology } from "./TreatmentTechnology";
 export { FacilityPreview } from "./FacilityPreview";
+export { RecoveryMedia } from "./RecoveryMedia";
 export { InstagramPreview } from "./InstagramPreview";
 export { CtaBanner } from "./CtaBanner";

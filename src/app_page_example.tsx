@@ -5,13 +5,11 @@ import {
   RecoveryFeature,
   TreatmentTechnology,
   FacilityPreview,
+  RecoveryMedia,
   InstagramPreview,
   CtaBanner,
 } from "@/components/home/HomeSections";
-import {
-  ReviewsPreview,
-  BlogPreview,
-} from "@/components/home/BlogReviews";
+import { ReviewsPreview, BlogPreview } from "@/components/home/BlogReviews";
 
 export default function HomePage() {
   return (
