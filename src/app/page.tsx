@@ -8,6 +8,9 @@ import {
   InstagramPreview,
   CtaBanner,
 } from "@/components/home/HomeSections";
+
+import { RecoveryMedia } from "@/components/home/RecoveryMedia";
+
 import {
   ReviewsPreview,
   BlogPreview,

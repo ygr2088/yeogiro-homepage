@@ -1,7 +1,7 @@
 "use client";
 
+import Link from "next/link";
 import { useRef, useState } from "react";
-import Image from "next/image";
 
 import { Icon } from "@/components/ui/Icon";
 
@@ -181,16 +181,17 @@ export function RecoveryMedia() {
             </p>
           </div>
 
-          <a
+          <Link
             href="/cases"
             className="flex items-center justify-between rounded-2xl bg-gray-900 p-5 text-white transition-transform hover:-translate-y-0.5"
-          >
+>
             <div>
               <p className="text-sm text-white/60">더 자세히 보기</p>
               <p className="mt-1 font-bold">치료사례 전체보기</p>
             </div>
+
             <Icon name="arrow" />
-          </a>
+          </Link>
         </div>
       </div>
     </section>

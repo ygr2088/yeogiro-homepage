@@ -1,41 +1,25 @@
-# 여기로 회복 영상·후기 미디어 섹션 v1
+# RecoveryMedia v2 안정화 패치
 
-## 포함 내용
-- 홈페이지에서 직접 재생되는 실제 치료영상 4개
-- 영상별 썸네일 이미지
-- Instagram 개별 콘텐츠 연결
-- YouTube `@Yeogiroamc` Shorts 채널 연결
-- 치료 결과가 환자마다 다를 수 있다는 안내문
-- 치료사례 전체보기 연결
+수정 내용:
+- 사용하지 않는 `next/image` import 제거
+- 내부 `/cases` 이동을 `<Link>`로 변경
+- `RecoveryMedia` 직접 import로 Turbopack 배럴 export 캐시 문제 회피
+- 영상 재생 실패 시 안전하게 처리
+- Instagram 및 YouTube Shorts 링크 유지
 
-## 파일
-- `src/components/home/RecoveryMedia.tsx`
-- `src/components/home/index.ts`
-- `src/components/home/HomeSections.tsx`
-- `public/videos/recovery/*`
-- `public/images/recovery/*`
-- `src/app_page_example.tsx`
+적용 방법:
+1. 프로젝트 루트에 압축을 풉니다.
+2. 같은 파일은 덮어씁니다.
+3. 실행 중인 개발 서버를 Ctrl+C로 종료합니다.
+4. 아래 명령을 실행합니다.
 
-## page.tsx 적용
-현재 `src/app/page.tsx`에 `RecoveryMedia`를 import하고 아래 위치에 추가하세요.
-
-```tsx
-<TreatmentTechnology />
-<RecoveryMedia />
-<FacilityPreview />
-```
-
-`src/app_page_example.tsx`에는 전체 예시가 들어 있습니다. 현재 page.tsx 구조가 같다면 내용을 복사해 교체할 수 있습니다.
-
-## 빌드
 ```powershell
 Remove-Item -Recurse -Force .next -ErrorAction SilentlyContinue
 npm run build
 ```
 
-## GitHub 반영
+빌드 성공 후:
+
 ```powershell
-git add .
-git commit -m "실제 회복 영상과 유튜브 쇼츠 연결"
-git push
+npm run dev
 ```
