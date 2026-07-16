@@ -4,6 +4,13 @@ export type ContentTone =
   | "professional"
   | "playful";
 
+export type VideoMeta = {
+  fileName: string;
+  fileSize: number;
+  duration: number;
+  objectUrl: string;
+};
+
 export type ContentForm = {
   patientName: string;
   species: "강아지" | "고양이";
@@ -28,4 +35,17 @@ export type GeneratedContent = {
   shortsTitles: string[];
   hashtags: string[];
   safetyNote: string;
+};
+
+export type SavedContentDraft = {
+  id: string;
+  createdAt: string;
+  updatedAt: string;
+  form: ContentForm;
+  content: GeneratedContent;
+  video?: {
+    fileName: string;
+    fileSize: number;
+    duration: number;
+  };
 };

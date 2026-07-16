@@ -1,11 +1,19 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { ChangeEvent, useEffect, useMemo, useRef, useState } from "react";
 
+import ContentHistory from "@/components/admin/ContentHistory";
+import {
+  loadDrafts,
+  saveDrafts,
+  upsertDraft,
+} from "@/lib/content/storage";
 import type {
   ContentForm,
   ContentTone,
   GeneratedContent,
+  SavedContentDraft,
+  VideoMeta,
 } from "@/types/content";
 
 const initialForm: ContentForm = {
@@ -28,6 +36,18 @@ type ApiResponse = {
   content?: GeneratedContent;
   error?: string;
 };
+
+function formatBytes(bytes: number) {
+  if (!Number.isFinite(bytes) || bytes <= 0) return "0 MB";
+  return `${(bytes / 1024 / 1024).toFixed(1)} MB`;
+}
+
+function formatDuration(seconds: number) {
+  if (!Number.isFinite(seconds) || seconds <= 0) return "0:00";
+  const minutes = Math.floor(seconds / 60);
+  const remain = Math.floor(seconds % 60);
+  return `${minutes}:${String(remain).padStart(2, "0")}`;
+}
 
 function CopyButton({ text }: { text: string }) {
   const [copied, setCopied] = useState(false);
@@ -77,8 +97,22 @@ export default function ContentGenerator() {
   const [form, setForm] = useState<ContentForm>(initialForm);
   const [result, setResult] = useState<GeneratedContent | null>(null);
   const [mode, setMode] = useState<"demo" | "ai" | null>(null);
+  const [video, setVideo] = useState<VideoMeta | null>(null);
+  const [drafts, setDrafts] = useState<SavedContentDraft[]>([]);
+  const [selectedDraftId, setSelectedDraftId] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    setDrafts(loadDrafts());
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (video?.objectUrl) URL.revokeObjectURL(video.objectUrl);
+    };
+  }, [video]);
 
   const canGenerate = useMemo(
     () =>
@@ -94,6 +128,41 @@ export default function ContentGenerator() {
     value: ContentForm[K],
   ) {
     setForm((current) => ({ ...current, [key]: value }));
+  }
+
+  function clearVideo() {
+    if (video?.objectUrl) URL.revokeObjectURL(video.objectUrl);
+    setVideo(null);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  }
+
+  function handleVideoChange(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0];
+    if (!file) return;
+
+    if (!file.type.startsWith("video/")) {
+      setError("영상 파일만 선택해 주세요.");
+      event.target.value = "";
+      return;
+    }
+
+    const maxBytes = 500 * 1024 * 1024;
+    if (file.size > maxBytes) {
+      setError("현재 버전에서는 500MB 이하 영상만 선택할 수 있습니다.");
+      event.target.value = "";
+      return;
+    }
+
+    if (video?.objectUrl) URL.revokeObjectURL(video.objectUrl);
+
+    const objectUrl = URL.createObjectURL(file);
+    setError("");
+    setVideo({
+      fileName: file.name,
+      fileSize: file.size,
+      duration: 0,
+      objectUrl,
+    });
   }
 
   async function generate() {
@@ -115,6 +184,7 @@ export default function ContentGenerator() {
 
       setResult(data.content);
       setMode(data.mode || null);
+      setSelectedDraftId(null);
     } catch (caught) {
       setError(
         caught instanceof Error
@@ -126,9 +196,66 @@ export default function ContentGenerator() {
     }
   }
 
+  function saveCurrentDraft() {
+    if (!result) return;
+
+    const now = new Date().toISOString();
+    const existing = selectedDraftId
+      ? drafts.find((item) => item.id === selectedDraftId)
+      : undefined;
+
+    const draft: SavedContentDraft = {
+      id: existing?.id || crypto.randomUUID(),
+      createdAt: existing?.createdAt || now,
+      updatedAt: now,
+      form,
+      content: result,
+      video: video
+        ? {
+            fileName: video.fileName,
+            fileSize: video.fileSize,
+            duration: video.duration,
+          }
+        : undefined,
+    };
+
+    const next = upsertDraft(drafts, draft);
+    setDrafts(next);
+    saveDrafts(next);
+    setSelectedDraftId(draft.id);
+  }
+
+  function loadDraft(draft: SavedContentDraft) {
+    setForm(draft.form);
+    setResult(draft.content);
+    setMode(null);
+    setSelectedDraftId(draft.id);
+    clearVideo();
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  function deleteDraft(id: string) {
+    const next = drafts.filter((item) => item.id !== id);
+    setDrafts(next);
+    saveDrafts(next);
+
+    if (selectedDraftId === id) {
+      setSelectedDraftId(null);
+    }
+  }
+
+  function resetAll() {
+    setForm(initialForm);
+    setResult(null);
+    setMode(null);
+    setSelectedDraftId(null);
+    setError("");
+    clearVideo();
+  }
+
   return (
     <div className="min-h-screen bg-[#fcfbfa] px-4 py-8 text-[#3e3033] sm:px-6 lg:px-8">
-      <div className="mx-auto max-w-7xl">
+      <div className="mx-auto max-w-[1500px]">
         <header className="mb-8 rounded-[2rem] bg-[#7b3343] p-7 text-white shadow-lg sm:p-10">
           <p className="mb-3 text-sm font-semibold tracking-[0.2em] text-white/70">
             YEOGIRO CONTENT STUDIO
@@ -137,20 +264,73 @@ export default function ContentGenerator() {
             SNS 콘텐츠 자동 생성
           </h1>
           <p className="mt-4 max-w-3xl leading-7 text-white/80">
-            환자와 치료 정보를 입력하면 인스타그램 릴스와 Threads에 맞는
-            문구를 각각 생성합니다. 게시 전에는 반드시 실제 진료 내용과
-            보호자 동의를 최종 확인해 주세요.
+            영상 미리보기와 환자 정보를 바탕으로 플랫폼별 문구를 만들고,
+            작성 결과를 브라우저에 임시 저장할 수 있습니다.
           </p>
         </header>
 
-        <div className="grid gap-6 xl:grid-cols-[0.9fr_1.1fr]">
+        <div className="grid gap-6 2xl:grid-cols-[0.85fr_1.15fr_0.7fr]">
           <section className="self-start rounded-[2rem] border border-black/5 bg-white p-6 shadow-sm sm:p-8">
             <div className="mb-6">
               <h2 className="text-xl font-bold">콘텐츠 정보</h2>
               <p className="mt-2 text-sm leading-6 text-black/55">
-                영상 업로드와 자동 분석은 다음 단계에서 연결합니다. 현재는
-                정확한 의료 내용을 직접 입력하는 방식입니다.
+                영상은 현재 브라우저에서만 미리보기되며 서버에 업로드되지
+                않습니다.
               </p>
+            </div>
+
+            <div className="mb-6 rounded-3xl border border-dashed border-[#d8a6af] bg-[#fff9fa] p-5">
+              <div className="mb-3 flex items-center justify-between gap-3">
+                <div>
+                  <h3 className="font-bold">릴스 영상</h3>
+                  <p className="mt-1 text-xs text-black/50">
+                    MP4·MOV 등 영상 파일, 최대 500MB
+                  </p>
+                </div>
+                {video && (
+                  <button
+                    type="button"
+                    onClick={clearVideo}
+                    className="text-xs font-semibold text-red-600 underline underline-offset-4"
+                  >
+                    영상 제거
+                  </button>
+                )}
+              </div>
+
+              <input
+                ref={fileInputRef}
+                type="file"
+                accept="video/*"
+                onChange={handleVideoChange}
+                className="block w-full text-sm file:mr-4 file:rounded-full file:border-0 file:bg-[#a95767] file:px-4 file:py-2 file:font-semibold file:text-white"
+              />
+
+              {video && (
+                <div className="mt-4 overflow-hidden rounded-2xl bg-black">
+                  <video
+                    controls
+                    playsInline
+                    src={video.objectUrl}
+                    onLoadedMetadata={(event) =>
+                      setVideo((current) =>
+                        current
+                          ? {
+                              ...current,
+                              duration: event.currentTarget.duration,
+                            }
+                          : current,
+                      )
+                    }
+                    className="max-h-[420px] w-full object-contain"
+                  />
+                  <div className="flex flex-wrap gap-x-4 gap-y-1 bg-black px-4 py-3 text-xs text-white/70">
+                    <span>{video.fileName}</span>
+                    <span>{formatBytes(video.fileSize)}</span>
+                    <span>{formatDuration(video.duration)}</span>
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="grid gap-5 sm:grid-cols-2">
@@ -345,8 +525,7 @@ export default function ContentGenerator() {
                 </div>
                 <h2 className="text-xl font-bold">생성 결과가 표시됩니다</h2>
                 <p className="mx-auto mt-3 max-w-lg text-sm leading-7 text-black/55">
-                  필수 정보를 입력하고 보호자 동의를 확인한 뒤 생성 버튼을
-                  누르세요. API 키가 없으면 데모 문구가 생성됩니다.
+                  정보를 입력하고 보호자 동의를 확인한 뒤 생성 버튼을 누르세요.
                 </p>
               </section>
             ) : (
@@ -355,18 +534,26 @@ export default function ContentGenerator() {
                   <p className="text-sm font-semibold">
                     {mode === "ai"
                       ? "AI 생성 모드"
-                      : "데모 모드 · OPENAI_API_KEY를 추가하면 AI로 전환됩니다"}
+                      : mode === "demo"
+                        ? "데모 모드 · OPENAI_API_KEY를 추가하면 AI로 전환됩니다"
+                        : "저장된 콘텐츠를 불러왔습니다"}
                   </p>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setResult(null);
-                      setMode(null);
-                    }}
-                    className="text-sm font-semibold underline underline-offset-4"
-                  >
-                    결과 초기화
-                  </button>
+                  <div className="flex gap-3">
+                    <button
+                      type="button"
+                      onClick={saveCurrentDraft}
+                      className="rounded-full bg-[#7b3343] px-4 py-2 text-xs font-bold text-white"
+                    >
+                      {selectedDraftId ? "수정 저장" : "작성 이력 저장"}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={resetAll}
+                      className="text-sm font-semibold underline underline-offset-4"
+                    >
+                      새 콘텐츠
+                    </button>
+                  </div>
                 </div>
 
                 <ResultCard
@@ -477,6 +664,15 @@ export default function ContentGenerator() {
                 </section>
               </>
             )}
+          </div>
+
+          <div className="self-start 2xl:sticky 2xl:top-6">
+            <ContentHistory
+              drafts={drafts}
+              selectedId={selectedDraftId}
+              onLoad={loadDraft}
+              onDelete={deleteDraft}
+            />
           </div>
         </div>
       </div>
